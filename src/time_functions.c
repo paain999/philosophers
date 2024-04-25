@@ -6,35 +6,50 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 22:22:39 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/19 12:56:01 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/24 20:24:54 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
 
-int	ft_usleep(size_t milliseconds)
+long	get_current_time(int code)
 {
-	size_t	start;
+	struct timeval	time;
 
-	start = get_current_time();
-	while ((get_current_time() - start) < milliseconds)
-		usleep(500);
-	return (0);
+	if (gettimeofday(&time, NULL) == -1)
+	{
+		write(2, "gettimeofday() error\n", 22);
+		return (-1);
+	}
+	if (code == 1)
+		return (time.tv_sec + (time.tv_usec / 1e6));
+	else if (code == 2)
+		return (time.tv_sec * 1e3 + time.tv_usec / 1e3);
+	else if (code == 3)
+		return ((time.tv_sec * 1e6) + time.tv_usec);
+	else
+		return (-1);
 }
 
-void	set_val(t_mtx *mutex, int *dest, int val)
+void	ft_usleep(long time, t_program *table)
 {
-	handle_mutex(mutex, LOCK);
-	*dest = val;
-	handle_mutex(mutex, UNLOCK);
-}
+	long	start;
+	long	lapsed;
+	long	remaining;
 
-void	get_val(t_mtx *mutex, int *value)
-{
-	int	ret;
-
-	handle_mutex(mutex, LOCK);
-	ret = *value;
-	handle_mutex(mutex, UNLOCK);
-	return (ret);
+	start = get_current_time(3);
+	while ((get_current_time(3) - start) < time)
+	{
+		if (table->end_simulation)
+			break ;
+		lapsed = get_current_time(3) - start;
+		remaining = time - lapsed;
+		if (remaining > 1e3)
+			usleep(remaining / 2);
+		else
+		{
+			while (get_current_time(3) - start < time)
+				;
+		}
+	}
 }

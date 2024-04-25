@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 13:33:16 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/19 13:06:31 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/24 21:12:22 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static void	assing_forks(t_philo *philo, t_fork *forks, int pos)
 	}
 }
 
-static void	init_philo(t_program *table)
+static int	init_philo(t_program *table)
 {
 	int		i;
 	t_philo	*philo;
@@ -38,13 +38,12 @@ static void	init_philo(t_program *table)
 		philo->table = table;
 		philo->id = i + 1;
 		philo->eating = 0;
-		philo->num_meals = table->num_meals;
 		philo->eaten_meals = 0;
-		philo->time_to_die = table->time_to_die;
-		philo->time_to_eat = table->time_to_eat;
-		philo->time_to_sleep = table->time_to_sleep;
+		if (handle_mutex(&philo->philo_mtx, INIT))
+			return (0);
 		assing_forks(philo, table->forks, i);
 	}
+	return (1);
 }
 
 int	init_data(t_program *table)
@@ -54,19 +53,24 @@ int	init_data(t_program *table)
 	table->end_simulation = 0;
 	table->is_dead = 0;
 	table->ready_threads = 0;
+	table->table_mutex = malloc(sizeof(pthread_mutex_t));
+	table->eating_lock = malloc(sizeof(pthread_mutex_t));
+	table->print_lock = malloc(sizeof(pthread_mutex_t));
 	table->philos = malloc(sizeof(t_philo) * table->num_philo);
 	table->forks = malloc(sizeof(t_fork) * table->num_philo);
 	i = -1;
 	if (table->philos == NULL || table->forks == NULL)
-		return (printf(RED "Error: malloc failed\n" RESET));
+		return (printf(RED "Error: philos or forks malloc failed\n" RESET));
 	while (++i < table->num_philo)
 	{
 		if (handle_mutex(&table->forks[i].mutex, INIT))
-			return (printf(RED "Error: mutex init failed\n" RESET));
+			return (printf(RED "Error: fork mutex init failed\n" RESET));
 		table->forks[i].fork_id = i;
 	}
-	if (handle_mutex(&table->table_mutex, INIT))
+	if (handle_mutex(table->table_mutex, INIT) || handle_mutex(
+			table->eating_lock, INIT)
+		|| handle_mutex(table->print_lock, INIT)
+		|| !init_philo(table))
 		return (printf(RED "Error: mutex init failed\n" RESET));
-	init_philo(table);
 	return (0);
 }

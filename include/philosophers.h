@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 20:12:30 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/19 13:22:54 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/24 21:12:33 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdlib.h>
 # include <sys/time.h>
 # include <unistd.h>
+# include <errno.h>
 
 # define RESET "\x1B[0m"
 # define RED "\x1B[31m"
@@ -43,6 +44,16 @@ typedef enum e_options
 	DETACH,
 }							t_options;
 
+typedef enum e_philo_status
+{
+	EATING,
+	SLEEPING,
+	THINKING,
+	DEAD,
+	FIRST_FORK,
+	SECOND_FORK
+}							t_philo_status;
+
 typedef struct s_fork
 {
 	t_mtx					mutex;
@@ -52,36 +63,34 @@ typedef struct s_fork
 typedef struct s_philo
 {
 	pthread_t				thread;
-	int						id;
-	int						eating;
-	int						eaten_meals;
-	int						*dead;
-	int						num_meals;
-	size_t					last_meal_time;
-	size_t					time_to_die;
-	size_t					time_to_eat;
-	size_t					time_to_sleep;
+	long					id;
+	long					eating;
+	long					eaten_meals;
+	long					*dead;
+	long					is_full;
+	long					last_meal_time;
 	t_fork					*first_fork;
 	t_fork					*second_fork;
-	t_mtx					*print_lock;
-	t_mtx					*eating_lock;
-	t_mtx					*dead_lock;
 	t_program				*table;
+	t_mtx					philo_mtx;
 
 }							t_philo;
 
 typedef struct s_program
 {
-	int						num_philo;
-	int						is_dead;
-	int						num_meals;
-	int						end_simulation;
-	int						ready_threads;
-	size_t					start_time;
-	size_t					time_to_die;
-	size_t					time_to_eat;
-	size_t					time_to_sleep;
-	t_mtx					table_mutex;
+	long					num_philo;
+	long					is_dead;
+	long					num_meals;
+	long					end_simulation;
+	long					ready_threads;
+	t_mtx					*print_lock;
+	t_mtx					*eating_lock;
+	t_mtx					*dead_lock;
+	t_mtx					*table_mutex;
+	long					start_time;
+	long					time_to_die;
+	long					time_to_eat;
+	long					time_to_sleep;
 	t_fork					*forks;
 	t_philo					*philos;
 	pthread_t				vigilant;
@@ -96,8 +105,13 @@ int							handle_thread(pthread_t *thread,
 								void *(*fn)(void *), void *data,
 								t_options option);
 void						clean_data(t_program *table);
-size_t						get_current_time(void);
-size_t						ft_usleep(size_t milliseconds);
-void						set_val(t_mtx *mutex, int *dest, int val);
-void						get_val(t_mtx *mutex, int *value);
+long						get_current_time(int code);
+void						ft_usleep(long time, t_program *table);
+void						set_val(t_mtx *mutex, long *dest, int val);
+int							get_val(t_mtx *mutex, long *value);
+void						wait_threads(t_program *table);
+void						write_status(t_philo_status status, t_philo *philo);
+void						*look_out(void *data);
+void						*dinner(void *data);
+int							start_sim(t_program *table);
 #endif
