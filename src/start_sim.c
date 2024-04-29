@@ -6,47 +6,38 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 13:33:06 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/29 19:37:58 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/29 21:08:00 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
 
-static int	simulation_finished(t_philo *philo)
-{
-	pthread_mutex_lock(philo->end_lock);
-	if (*philo->end_simulation)
-		return (pthread_mutex_unlock(philo->end_lock), 1);
-	pthread_mutex_unlock(philo->end_lock);
-	return (0);
-}
-
 static void	eat(t_philo *philo)
 {
-	handle_mutex(&philo->first_fork->mutex, LOCK);
-	write_status(FIRST_FORK, philo);
+	pthread_mutex_lock(&philo->first_fork->mutex);
+	write_status("has taken a fork", philo, philo->id);
 	if (philo->num_philos == 1)
 	{
 		ft_usleep(philo->time_to_die);
 		return ;
 	}
-	handle_mutex(&philo->second_fork->mutex, LOCK);
-	write_status(SECOND_FORK, philo);
+	pthread_mutex_lock(&philo->second_fork->mutex);
+	write_status("has taken a fork", philo, philo->id);
 	philo->is_eating = 1;
-	write_status(EATING, philo);
-	handle_mutex(philo->eating_lock, LOCK);
+	write_status("is eating", philo, philo->id);
+	pthread_mutex_lock(philo->eating_lock);
 	philo->eaten_meals++;
-	philo->last_meal_time = get_current_time(2);
-	handle_mutex(philo->eating_lock, UNLOCK);
+	philo->last_meal_time = get_current_time();
+	pthread_mutex_unlock(philo->eating_lock);
 	ft_usleep(philo->time_to_eat);
 	philo->is_eating = 0;
-	handle_mutex(&philo->second_fork->mutex, UNLOCK);
-	handle_mutex(&philo->first_fork->mutex, UNLOCK);
+	pthread_mutex_unlock(&philo->second_fork->mutex);
+	pthread_mutex_unlock(&philo->first_fork->mutex);
 }
 
 static void	thinking(t_philo *philo)
 {
-	write_status(THINKING, philo);
+	write_status("is thinking", philo, philo->id);
 }
 
 void	*dinner(void *data)
@@ -59,11 +50,11 @@ void	*dinner(void *data)
 	while (!simulation_finished(philo))
 	{
 		eat(philo);
-		write_status(SLEEPING, philo);
+		write_status("is sleeping", philo, philo->id);
 		ft_usleep(philo->time_to_sleep);
 		thinking(philo);
 	}
-	return (NULL);
+	return (data);
 }
 
 int	start_sim(t_program *table)

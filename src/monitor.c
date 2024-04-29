@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/24 18:48:45 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/29 19:31:20 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/29 21:00:57 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static	int	philo_is_dead(t_philo *philo, long time_to_die)
 {
 	pthread_mutex_lock(philo->eating_lock);
-	if (get_current_time(2) - philo->last_meal_time
+	if (get_current_time() - philo->last_meal_time
 		>= time_to_die && philo->is_eating == 0)
 		return (pthread_mutex_unlock(philo->eating_lock), 1);
 	pthread_mutex_unlock(philo->eating_lock);
@@ -31,10 +31,10 @@ static	int	check_death(t_philo *philos)
 	{
 		if (philo_is_dead(&philos[i], philos[i].time_to_die))
 		{
-			write_status(DEAD, &philos[i]);
-			handle_mutex(philos[0].end_lock, LOCK);
+			write_status("died", &philos[i], philos[i].id);
+			pthread_mutex_lock(philos[0].end_lock);
 			*philos->end_simulation = 1;
-			handle_mutex(philos[0].end_lock, UNLOCK);
+			pthread_mutex_unlock(philos[0].end_lock);
 			return (1);
 		}
 	}
@@ -52,16 +52,16 @@ static	int	philos_are_full(t_philo *philos)
 		return (0);
 	while (++i < philos[0].num_philos)
 	{
-		handle_mutex(philos[i].eating_lock, LOCK);
+		pthread_mutex_lock(philos[i].eating_lock);
 		if (philos[i].eaten_meals >= philos[0].num_meals)
 			end++;
-		handle_mutex(philos[i].eating_lock, UNLOCK);
+		pthread_mutex_unlock(philos[i].eating_lock);
 	}
 	if (end == philos[0].num_philos)
 	{
-		handle_mutex(philos[0].end_lock, LOCK);
+		pthread_mutex_lock(philos[0].end_lock);
 		*philos->end_simulation = 1;
-		handle_mutex(philos[0].end_lock, LOCK);
+		pthread_mutex_unlock(philos[0].end_lock);
 		return (1);
 	}
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 13:33:16 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/29 19:48:25 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/29 20:59:49 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ static void	init_philo(t_program *table, char **av)
 		philo->is_eating = 0;
 		init_args(philo, av);
 		philo->end_simulation = &table->end_simulation;
-		philo->start_time = get_current_time(2);
-		philo->last_meal_time = get_current_time(2);
+		philo->start_time = get_current_time();
+		philo->last_meal_time = get_current_time();
 		philo->print_lock = &table->print_lock;
 		philo->eating_lock = &table->eating_lock;
 		philo->end_lock = &table->end_lock;
@@ -67,7 +67,7 @@ int	init_data(t_program *table, char **av)
 		return (printf(RED "Error: philos or forks malloc failed\n" RESET));
 	while (++i < ft_atol(av[1]))
 	{
-		if (handle_mutex(&table->forks[i].mutex, INIT))
+		if (pthread_mutex_init(&table->forks[i].mutex, NULL))
 			return (printf(RED "Error: fork mutex init failed\n" RESET));
 		table->forks[i].fork_id = i;
 	}
