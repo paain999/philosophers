@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 21:55:44 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/17 22:15:17 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:10:23 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,13 @@ static const char	*ft_isvalid(const char *str)
 	return (str);
 }
 
-static long	ft_atol(const char *str)
+long	ft_atol(const char *str)
 {
 	long	val;
 
 	str = ft_isvalid(str);
 	if (!str)
-		return (0);
+		return (-2);
 	val = 0;
 	while (ft_isdigit(*str))
 	{
@@ -48,13 +48,13 @@ static long	ft_atol(const char *str)
 		str++;
 	}
 	if (*str != '\0' && !is_space(*str) && !ft_isdigit(*str))
-		return (0);
+		return (-2);
 	while (is_space(*str))
 		str++;
 	if (*str != '\0')
-		return (0);
+		return (-2);
 	if (val > INT_MAX || val < INT_MIN)
-		return (0);
+		return (-2);
 	return (val);
 }
 
@@ -62,16 +62,10 @@ int	parse_args(t_program *table, char **av, int ac)
 {
 	if (ac != 5 && ac != 6)
 		return (printf(RED "Error: wrong number of arguments\n" RESET));
-	table->num_philo = ft_atol(av[1]);
-	table->time_to_die = ft_atol(av[2]);
-	table->time_to_eat = ft_atol(av[3]);
-	table->time_to_sleep = ft_atol(av[4]);
-	if (av[5])
-		table->num_meals = ft_atol(av[5]);
-	else
-		table->num_meals = -1;
-	if (table->num_philo < 1 || !table->time_to_die || !table->time_to_eat
-		|| !table->time_to_sleep)
+	memset(table, 0, sizeof(t_program));
+	if ((ft_atol(av[1]) < 1 && ft_atol(av[1]) > PHILO_MAX)
+		|| ft_atol(av[2]) <= 0 || ft_atol(av[3]) <= 0
+		|| ft_atol(av[4]) <= 0 || (av[5] && (ft_atol(av[5]) < 0)))
 		return (printf(RED "Error: invalid arguments\n" RESET));
 	return (0);
 }

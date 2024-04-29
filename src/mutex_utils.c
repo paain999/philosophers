@@ -12,6 +12,33 @@
 
 #include "../include/philosophers.h"
 
+static int	handle_error_threads(int error, t_options option)
+{
+	if (error)
+	{
+		if ((option == DETACH || option == JOIN) && error == EINVAL)
+			return (printf(RED
+					"Error: Thread is not a joinable thread.\n" RESET));
+		else if ((option == DETACH || option == JOIN) && error == ESRCH)
+			return (printf(RED
+					"Error: No thread with the ID thread could be found.\n"
+					RESET));
+		else if (error == EDEADLK && option == JOIN)
+			return (printf(RED
+					"Error: A  deadlock  was  detected.\n" RESET));
+		else if (error == EINVAL && option == CREATE)
+			return (printf(RED
+					"Error: Invalid settings in attr.\n" RESET));
+		else if (error == EAGAIN)
+			return (printf(RED "Error: Insufficient resources.\n" RESET));
+		else if (error == EPERM)
+			return (printf(RED "Error: No permission to set the scheduling"
+					"policy and  parameters  specified in attr.\n"
+					RESET));
+	}
+	return (0);
+}
+
 static int	handle_error(int error, t_options option)
 {
 	if (error)
@@ -56,10 +83,11 @@ int	handle_thread(pthread_t *thread, void *(*fn)(void *), void *data,
 		t_options option)
 {
 	if (option == CREATE)
-		return (pthread_create(thread, NULL, fn, data));
+		return (handle_error_threads(pthread_create(thread, NULL, fn, data),
+				CREATE));
 	else if (option == JOIN)
-		return (pthread_join(*thread, NULL));
+		return (handle_error_threads(pthread_join(*thread, NULL), JOIN));
 	else if (option == DETACH)
-		return (pthread_detach(*thread));
+		return (handle_error_threads(pthread_detach(*thread), DETACH));
 	return (1);
 }

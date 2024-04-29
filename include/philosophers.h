@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 20:12:30 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/24 21:12:33 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/29 19:22:29 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,9 @@
 # include <sys/time.h>
 # include <unistd.h>
 # include <errno.h>
+# include <string.h>
+
+# define PHILO_MAX 200
 
 # define RESET "\x1B[0m"
 # define RED "\x1B[31m"
@@ -64,54 +67,56 @@ typedef struct s_philo
 {
 	pthread_t				thread;
 	long					id;
-	long					eating;
-	long					eaten_meals;
-	long					*dead;
-	long					is_full;
-	long					last_meal_time;
-	t_fork					*first_fork;
-	t_fork					*second_fork;
-	t_program				*table;
-	t_mtx					philo_mtx;
-
-}							t_philo;
-
-typedef struct s_program
-{
-	long					num_philo;
-	long					is_dead;
+	long					num_philos;
 	long					num_meals;
-	long					end_simulation;
-	long					ready_threads;
-	t_mtx					*print_lock;
-	t_mtx					*eating_lock;
-	t_mtx					*dead_lock;
-	t_mtx					*table_mutex;
+	long					eaten_meals;
+
+	long					*end_simulation;
+	long					is_eating;
+
+	long					last_meal_time;
 	long					start_time;
 	long					time_to_die;
 	long					time_to_eat;
 	long					time_to_sleep;
+
+	t_fork					*first_fork;
+	t_fork					*second_fork;
+
+	t_mtx					*print_lock;
+	t_mtx					*end_lock;
+	t_mtx					*eating_lock;
+}							t_philo;
+
+typedef struct s_program
+{
+	long					end_simulation;
+	t_mtx					print_lock;
+	t_mtx					end_lock;
+	t_mtx					eating_lock;
 	t_fork					*forks;
 	t_philo					*philos;
-	pthread_t				vigilant;
-
 }							t_program;
 
+// UTILS
 int							ft_isdigit(int c);
+int							clean_data(t_program *table);
+long						get_current_time(int code);
+void						ft_usleep(long time);
+long						ft_atol(const char *str);
+void						write_status(t_philo_status status, t_philo *philo);
+
+// PARSE AND DATA INIT
 int							parse_args(t_program *table, char **av, int ac);
-int							init_data(t_program *table);
+int							init_data(t_program *table, char **av);
+
+// HANDLE THREADS
 int							handle_mutex(t_mtx *mutex, t_options option);
 int							handle_thread(pthread_t *thread,
 								void *(*fn)(void *), void *data,
 								t_options option);
-void						clean_data(t_program *table);
-long						get_current_time(int code);
-void						ft_usleep(long time, t_program *table);
-void						set_val(t_mtx *mutex, long *dest, int val);
-int							get_val(t_mtx *mutex, long *value);
-void						wait_threads(t_program *table);
-void						write_status(t_philo_status status, t_philo *philo);
-void						*look_out(void *data);
+void						*check_philos(void *data);
 void						*dinner(void *data);
 int							start_sim(t_program *table);
+int							end_of_simulation(t_program *table);
 #endif

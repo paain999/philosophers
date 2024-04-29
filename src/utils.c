@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 22:21:05 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/24 20:25:00 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/29 18:10:44 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,41 +19,28 @@ int	ft_isdigit(int c)
 	return (0);
 }
 
-void	clean_data(t_program *table)
+int	clean_data(t_program *table)
 {
 	int	i;
 
 	i = -1;
-	while (++i < table->num_philo)
+	while (++i < table->philos[0].num_philos)
 	{
 		handle_mutex(&table->forks[i].mutex, DESTROY);
-		handle_mutex(&table->philos[i].philo_mtx, DESTROY);
 	}
-	handle_mutex(table->print_lock, DESTROY);
-	handle_mutex(table->eating_lock, DESTROY);
+	handle_mutex(&table->print_lock, DESTROY);
+	handle_mutex(&table->eating_lock, DESTROY);
+	handle_mutex(&table->end_lock, DESTROY);
 	free(table->forks);
 	free(table->philos);
+	return (0);
 }
 
-void	set_val(t_mtx *mutex, long *dest, int val)
+void	increase_val(t_mtx *mutex, long *val)
 {
 	handle_mutex(mutex, LOCK);
-	*dest = val;
+	(*val)++;
 	handle_mutex(mutex, UNLOCK);
 }
 
-int	get_val(t_mtx *mutex, long *value)
-{
-	int	ret;
 
-	handle_mutex(mutex, LOCK);
-	ret = *value;
-	handle_mutex(mutex, UNLOCK);
-	return (ret);
-}
-
-void	wait_threads(t_program *table)
-{
-	while (!get_val(table->table_mutex, &table->ready_threads))
-		;
-}
