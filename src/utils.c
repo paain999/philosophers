@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 22:21:05 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/29 20:47:15 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/30 15:59:17 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,19 @@ int	clean_data(t_program *table)
 	int	i;
 
 	i = -1;
-	while (++i < table->philos[0].num_philos)
+	if (table->forks)
 	{
-		pthread_mutex_destroy(&table->forks[i].mutex);
+		while (++i < table->philos[0].num_philos)
+		{
+			pthread_mutex_destroy(&table->forks[i].mutex);
+		}
+		free(table->forks);
 	}
 	pthread_mutex_destroy(&table->print_lock);
 	pthread_mutex_destroy(&table->eating_lock);
 	pthread_mutex_destroy(&table->end_lock);
-	free(table->forks);
-	free(table->philos);
+	if (table->philos)
+		free(table->philos);
 	return (0);
 }
 

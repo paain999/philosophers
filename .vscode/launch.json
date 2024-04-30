@@ -5,13 +5,14 @@
       "name": "(gdb) Launch",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/src/a.out",
-      "args": ["4", "200", "200", "200", "5"],
+      "program": "${workspaceFolder}/philo",
+      "args": ["-1", "100", "100", "210"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
-      "MIMode": "gdb",
+      "MIMode": "lldb",
+      "miDebuggerPath": "/usr/bin/gdb"
     },
   ]
 }

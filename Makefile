@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: dajimene <dajimene@student.42urduliz.com>  +#+  +:+       +#+         #
+#    By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/28 22:38:24 by dajimene          #+#    #+#              #
-#    Updated: 2024/04/30 10:26:53 by dajimene         ###   ########.fr        #
+#    Updated: 2024/04/30 16:07:44 by dajimene         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 

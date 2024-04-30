@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 21:55:44 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/29 18:10:23 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/30 15:51:05 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int	parse_args(t_program *table, char **av, int ac)
 	if (ac != 5 && ac != 6)
 		return (printf(RED "Error: wrong number of arguments\n" RESET));
 	memset(table, 0, sizeof(t_program));
-	if ((ft_atol(av[1]) < 1 && ft_atol(av[1]) > PHILO_MAX)
+	if ((ft_atol(av[1]) < 1 || ft_atol(av[1]) > PHILO_MAX)
 		|| ft_atol(av[2]) <= 0 || ft_atol(av[3]) <= 0
 		|| ft_atol(av[4]) <= 0 || (av[5] && (ft_atol(av[5]) < 0)))
 		return (printf(RED "Error: invalid arguments\n" RESET));
