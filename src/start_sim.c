@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 13:33:06 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/29 21:08:00 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/30 10:36:43 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static void	eat(t_philo *philo)
 	pthread_mutex_lock(&philo->second_fork->mutex);
 	write_status("has taken a fork", philo, philo->id);
 	philo->is_eating = 1;
-	write_status("is eating", philo, philo->id);
+	write_status("\033[0;33mis eating\033[0m", philo, philo->id);
 	pthread_mutex_lock(philo->eating_lock);
 	philo->eaten_meals++;
 	philo->last_meal_time = get_current_time();
@@ -50,7 +50,7 @@ void	*dinner(void *data)
 	while (!simulation_finished(philo))
 	{
 		eat(philo);
-		write_status("is sleeping", philo, philo->id);
+		write_status("\033[0;34mis sleeping\033[0m", philo, philo->id);
 		ft_usleep(philo->time_to_sleep);
 		thinking(philo);
 	}
@@ -63,21 +63,25 @@ int	start_sim(t_program *table)
 	pthread_t	monitor;
 
 	if (pthread_create(&monitor, NULL, &check_philos, table->philos))
-		return (1);
+		return (printf(RED "Error: Monitor thread creation failed\n"
+				RESET));
 	i = -1;
 	while (++i < table->philos[0].num_philos)
 	{
 		if (pthread_create(&table->philos[i].thread, NULL, &dinner,
 				&table->philos[i]))
-			return (1);
+			return (printf(RED "Error: Philos thread creation failed\n"
+					RESET));
 	}
 	i = -1;
 	if (pthread_join(monitor, NULL))
-		return (1);
+		return (printf(RED "Error: Monitor thread join failed\n"
+				RESET));
 	while (++i < table->philos[0].num_philos)
 	{
 		if (pthread_join(table->philos[i].thread, NULL))
-			return (1);
+			return (printf(RED "Error: Philos thread join failed\n"
+					RESET));
 	}
 	return (0);
 }

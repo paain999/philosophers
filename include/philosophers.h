@@ -6,7 +6,7 @@
 /*   By: dajimene <dajimene@student.42urduliz.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 20:12:30 by dajimene          #+#    #+#             */
-/*   Updated: 2024/04/29 21:38:10 by dajimene         ###   ########.fr       */
+/*   Updated: 2024/04/30 10:39:44 by dajimene         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 # include <string.h>
 
 # define PHILO_MAX 200
+# define RED	"\033[0;31m"
+# define RESET	"\033[0m"
 
 typedef pthread_mutex_t		t_mtx;
 typedef struct s_program	t_program;
@@ -79,7 +81,7 @@ void						write_status(char *s, t_philo *philo, long id);
 int							parse_args(t_program *table, char **av, int ac);
 int							init_data(t_program *table, char **av);
 
-// HANDLE THREADS
+// THREADS
 void						*check_philos(void *data);
 void						*dinner(void *data);
 int							start_sim(t_program *table);
